@@ -1,12 +1,14 @@
-import express from 'express';
+import express from "express";
 
 const app = express();
 const PORT = 8000;
 
-app.get('/', (req, res) => {
-  res.send('Hello, welcome to the Classroom API');
+app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.send("Backend server is running!");
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port http://localhost:${PORT}`);
+  console.log(`Server running at http://localhost:${PORT}`);
 });
