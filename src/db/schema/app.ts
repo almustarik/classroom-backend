@@ -1,5 +1,21 @@
 import { relations } from 'drizzle-orm';
-import { integer, pgTable, timestamp, varchar } from 'drizzle-orm/pg-core';
+import {
+  index,
+  integer,
+  jsonb,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  varchar,
+} from 'drizzle-orm/pg-core';
+import { user } from './auth';
+
+export const classStatusEnum = pgEnum('class_status', [
+  'active',
+  'inactive',
+  'archived',
+]);
 
 const timestamps = {
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -28,6 +44,43 @@ export const subjects = pgTable('subjects', {
   ...timestamps,
 });
 
+export const classes = pgTable(
+  'classes',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    subjectId: integer('subject_id')
+      .notNull()
+      .references(() => subjects.id, { onDelete: 'cascade' }),
+    teacherId: integer('teacher_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'restrict' }),
+    inviteCode: text('invite_code').notNull().unique(),
+    name: varchar('name', { length: 255 }).notNull(),
+    bannerCldPubId: text('banner_cld_pub_id'),
+    bannerUrl: text('banner_url'),
+    description: text('description'),
+    capacity: integer('capacity').default(50).notNull(),
+    status: classStatusEnum('status').notNull().default('active'),
+    schedules: jsonb('schedules').$type<any[]>().default([]).notNull(),
+    ...timestamps,
+  },
+  (table) => [
+    index('classes_subject_id_idx').on(table.subjectId),
+    index('classes_teacher_id_idx').on(table.teacherId),
+  ],
+);
+
+export const enrollments = pgTable('enrollments', {
+  studentId: text('student_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  classId: integer('class_id')
+    .notNull()
+    .references(() => classes.id, {
+      onDelete: 'cascade',
+    }),
+});
+
 export const departmentRelations = relations(departments, ({ many }) => ({
   subjects: many(subjects),
 }));
@@ -44,3 +97,9 @@ export type NewDepartment = typeof departments.$inferInsert;
 
 export type Subject = typeof subjects.$inferSelect;
 export type NewSubject = typeof subjects.$inferInsert;
+
+export type Class = typeof classes.$inferSelect;
+export type NewClass = typeof classes.$inferSelect;
+
+export const Enrollment = typeof enrollments.$inferInsert;
+export type NewEnrollment = typeof enrollments.$inferSelect;
