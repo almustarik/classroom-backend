@@ -99,7 +99,8 @@ export type Subject = typeof subjects.$inferSelect;
 export type NewSubject = typeof subjects.$inferInsert;
 
 export type Class = typeof classes.$inferSelect;
-export type NewClass = typeof classes.$inferSelect;
+export type NewClass = typeof classes.$inferInsert;
 
-export const Enrollment = typeof enrollments.$inferInsert;
-export type NewEnrollment = typeof enrollments.$inferSelect;
+export type Enrollment = typeof enrollments.$inferSelect;
+export type NewEnrollment = typeof enrollments.$inferInsert;
+
