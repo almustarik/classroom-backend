@@ -7,6 +7,7 @@ import express from 'express';
 import { auth } from './lib/auth';
 import securityMiddleware from './middleware/security';
 import subjectsRouter from './routes/subjects';
+import usersRouter from './routes/users';
 
 const app = express();
 const PORT = 8000;
@@ -26,8 +27,9 @@ app.use(
 app.all('/api/auth/*splat', toNodeHandler(auth));
 
 app.use(express.json());
-app.use(securityMiddleware);
+// app.use(securityMiddleware);
 app.use('/api/subjects', subjectsRouter);
+app.use('/api/users', usersRouter);
 
 app.get('/', (req, res) => {
   res.send('Backend server is running!');
